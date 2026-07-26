@@ -33,18 +33,18 @@ def get_exercises():
   return("Gotten all exercises")
 
 @app.route('/exercises/<int:id>', methods=['GET'])
-def get_exercises(id):
+def get_exercise(id):
   return(f"Gotten exercise with id: {id}")
 
 @app.route('/exercises', methods=['POST'])
-def get_exercises():
+def create_exercises():
   return("Created exercise")
 
 @app.route('/exercises/<int:id>', methods=['DELETE'])
-def get_exercises():
+def delete_exercises():
   return("Gotten all exercises")
 
-@app.route('workouts/<workout_id>/exercises/<exercise_id>/workout_exercises', methods=['POST'])
+@app.route('/workouts/<workout_id>/exercises/<exercise_id>/workout_exercises', methods=['POST'])
 def add_exercise_to_workout(workout_id, exercise_id):
   return(f"Added exercise with id: {exercise_id} to workout with id: {workout_id}")
 
