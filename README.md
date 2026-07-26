@@ -30,17 +30,17 @@
 > Here's an example of test data for the /workouts endpoint:
 
 {
-  "date": "2026-07-26", \n
-  "duration_minutes": 45, \n
-  "notes": "Evening cardio session" \n
+  "date": "2026-07-26", 
+  "duration_minutes": 45, 
+  "notes": "Evening cardio session" 
 }
 
 > Here's an example of test data for the /exercises endpoint:
 
 {
-  "name": "Bench Press", \n
-  "category": "Arms", \n
-  "equipment_needed": true \n
+  "name": "Bench Press", 
+  "category": "Arms", 
+  "equipment_needed": true 
 }
 
 > The first id would be the workout you want to add the exercise to and the second id is the exercise you want to add e.g.: /workouts/1/exercises/2/workout_exercises
