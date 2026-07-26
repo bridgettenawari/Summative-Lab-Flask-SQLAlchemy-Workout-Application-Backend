@@ -1,8 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
-from sqlalchemy import MetaData
-metadata = MetaData()
-db = SQLAlchemy(metadata=metadata)
+db = SQLAlchemy()
 
 class Exercise(db.Model):
   __tablename__ = 'exercises'
