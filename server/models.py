@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+from datetime import date
 db = SQLAlchemy()
 
 class Exercise(db.Model):
@@ -13,22 +14,27 @@ class Exercise(db.Model):
   workoutexercises = db.relationship('WorkoutExercises', back_populates='exercise', cascade='all, delete-orphan')
 
   # Model Validation
-  @validates('name') # Pass the key mentioned in the function into the brackets
+  @validates('name')
   def validate_name(self, key, value):
-    if value is not None and 50 > len(value) > 3:
-      raise ValueError("Name must be longer than 3 characters and less than 50 characters.")
+    if not value or len(value) <= 3 or len(value) >= 50:
+        raise ValueError("Name must be longer than 3 characters and less than 50 characters.")
     return value
+
 
   @validates('category')
   def validate_category(self, key, value):
-    if value is not None and 20 > len(value) > 3:
-      raise ValueError("Category must be longer than 3 characters and less than 20 characters.")
+    if not value or len(value) <= 3 or len(value) >= 20:
+        raise ValueError("Category must be longer than 3 characters and less than 20 characters.")
     return value
+
+  def __repr__(self):
+   return f"<Exercise {self.id}, name={self.name}, category={self.category}, equipment_needed={self.equipment_needed}"
+
 
 class Workout(db.Model):
   __tablename__ = 'workouts'
   id = db.Column(db.Integer, primary_key=True)
-  date = db.Column(db.Date)
+  date = db.Column(db.Date, default=date.today)
   duration_minutes = db.Column(db.Integer, nullable=False)
   notes = db.Column(db.String(500))
   workoutexercises = db.relationship('WorkoutExercises', back_populates='workout', cascade='all, delete-orphan')
@@ -41,9 +47,12 @@ class Workout(db.Model):
   # Model Validation
   @validates('notes')
   def validate_notes(self, key, value):
-    if value is not None and  500 > len(value) > 0:
-      raise ValueError("Duration cannot be less than 0 minutes.")
+    if not value or len(value.strip()) == 0:
+        raise ValueError("Notes cannot be empty.")
     return value
+  
+  def __repr__(self):
+    return f"<Workout {self.id}, date={self.date}, duration_minutes={self.duration_minutes}, notes={self.notes}"
 
 class WorkoutExercises(db.Model):
   __tablename__ = 'workoutexercises'
@@ -62,3 +71,6 @@ class WorkoutExercises(db.Model):
     db.CheckConstraint('duration_seconds >= 0'),
     db.CheckConstraint('reps >= 0'),
   )
+
+  def __repr__(self):
+    return f"<WorkoutExercise {self.id}, reps={self.reps}, sets={self.sets}, duartion_seconds={self.duration_seconds}"
