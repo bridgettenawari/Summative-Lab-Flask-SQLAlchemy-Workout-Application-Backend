@@ -30,11 +30,11 @@ def get_workout(id):
 def create_workout():
   schema = WorkoutSchema() 
   try:
-      data = schema.load(request.json) # Recieves JSON data sent and changes it to a python object after validation
+      workout_data = schema.load(request.json) # Recieves JSON data sent and changes it to a python object after validation
   except ValidationError as err:
-      return jsonify(err.messages), 400
+      return make_response(jsonify(err.messages), 400)
 
-  workout = Workout(**data)
+  workout = Workout(**workout_data)
   db.session.add(workout)
   db.session.commit()
   return make_response(jsonify(schema.dump(workout)), 201)
@@ -44,13 +44,13 @@ def delete_workout(id):
   workout = Workout.query.get_or_404(id) 
   db.session.delete(workout)
   db.session.commit() # Save changes to database
-  return jsonify({"message": f"Deleted workout with id {id}"}), 200
+  return make_response(jsonify({"message": f"The workout with the id:{id} has been deleted."}), 200)
 
 @app.route('/exercises', methods=['GET'])
 def get_exercises():
   exercises = Exercise.query.all()
   schema = ExerciseSchema(many=True)
-  return jsonify(schema.dump(exercises))
+  return make_response(jsonify(schema.dump(exercises)))
 
 @app.route('/exercises/<int:id>', methods=['GET'])
 def get_exercise(id):
@@ -62,11 +62,11 @@ def get_exercise(id):
 def create_exercises():
   schema = ExerciseSchema()
   try:
-      data = schema.load(request.json)
+      exercise_data = schema.load(request.json)
   except ValidationError as err:
       return make_response(jsonify(err.messages), 400)
 
-  exercise = Exercise(**data)
+  exercise = Exercise(**exercise_data)
   db.session.add(exercise)
   db.session.commit()
   return make_response(jsonify(schema.dump(exercise)), 201)
@@ -76,7 +76,7 @@ def delete_exercises():
   exercise = Exercise.query.get_or_404(id) 
   db.session.delete(exercise)
   db.session.commit() 
-  return jsonify({"message": f"Deleted exercise with id {id}"}), 200
+  return make_response(jsonify({"message": f"Exercise with the id: {id} has been deleted."}), 200)
 
 @app.route('/workouts/<workout_id>/exercises/<exercise_id>/workout_exercises', methods=['POST'])
 def add_exercise_to_workout(workout_id, exercise_id):
@@ -85,10 +85,10 @@ def add_exercise_to_workout(workout_id, exercise_id):
       data = schema.load(request.json)
   except ValidationError as err:
       return jsonify(err.messages), 400
-  workout_exercise = WorkoutExercises(workout_id=workout_id, exercise_id=exercise_id, **data)
+  workout_exercise = WorkoutExercises(workout_id=workout_id, exercise_id=exercise_id, **data) # Get the rest of the relevant data from the response
   db.session.add(workout_exercise)
   db.session.commit()
-  return jsonify(schema.dump(workout_exercise)), 201
+  return make_response(jsonify(schema.dump(workout_exercise)), 201)
 
 if __name__ == '__main__':
   app.run(port=5555, debug=True)
