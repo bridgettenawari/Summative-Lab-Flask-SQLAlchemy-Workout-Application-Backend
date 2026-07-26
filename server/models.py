@@ -35,7 +35,7 @@ class Workout(db.Model):
 
   # Table constraints
   __table_args__ = (
-    db.CheckConstraint('duration_minutes >= 0')
+    db.CheckConstraint('duration_minutes >= 0'),
   )
 
   # Model Validation
@@ -60,5 +60,5 @@ class WorkoutExercises(db.Model):
   __table_args__ = (
     db.CheckConstraint('sets >= 0'),
     db.CheckConstraint('duration_seconds >= 0'),
-    db.CheckConstraint('reps >= 0')
+    db.CheckConstraint('reps >= 0'),
   )
