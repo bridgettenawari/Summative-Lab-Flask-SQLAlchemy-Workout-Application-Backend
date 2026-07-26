@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+from marshmallow import Schema, fields, ValidationError
 from datetime import date
 db = SQLAlchemy()
 
@@ -20,7 +21,6 @@ class Exercise(db.Model):
         raise ValueError("Name must be longer than 3 characters and less than 50 characters.")
     return value
 
-
   @validates('category')
   def validate_category(self, key, value):
     if not value or len(value) <= 3 or len(value) >= 20:
@@ -29,7 +29,6 @@ class Exercise(db.Model):
 
   def __repr__(self):
    return f"<Exercise {self.id}, name={self.name}, category={self.category}, equipment_needed={self.equipment_needed}"
-
 
 class Workout(db.Model):
   __tablename__ = 'workouts'
@@ -74,3 +73,42 @@ class WorkoutExercises(db.Model):
 
   def __repr__(self):
     return f"<WorkoutExercise {self.id}, reps={self.reps}, sets={self.sets}, duartion_seconds={self.duration_seconds}"
+
+# The joining schema always comes fast and has lamda for each table its joining
+class WorkoutExercisesSchema(Schema):
+  id = fields.Integer()
+  reps = fields.Integer()
+  sets = fields.Integer()
+  duration_seconds = fields.Integer()
+  # Exclude needs to be a list of strings for some reason
+  workout = fields.Nested(lambda: WorkoutSchema(exclude=['workoutexercises']))
+  exercise = fields.Nested(lambda: ExerciseSchema(exclude=['workoutexercises']))
+
+class ExerciseSchema(Schema):
+  id = fields.Integer()
+  name = fields.String()
+  category = fields.String()
+  equipment_needed = fields.Boolean()
+  workoutexercises = fields.List(fields.Nested(WorkoutExercisesSchema(exclude=("workout", "exercise"))))
+
+  # Schema validation
+  @validates('category')
+  def validate_category(self, value):
+    categories = ["Arms", "Core", "Glutes", "Legs", "Back", "Body"]
+    if value not in categories:
+      raise ValidationError(f"Category must be one of: {', '.join(categories)}.")
+
+class WorkoutSchema(Schema):
+  id = fields.Integer()
+  date = fields.Date()
+  duration_minutes = fields.Integer()
+  notes = fields.String()
+  workoutexercises = fields.List(fields.Nested(WorkoutExercisesSchema(exclude=("workout", "exercise"))))
+
+  # Schema validation
+  @validates('notes')
+  def validate_notes(self, key, value):
+    if not value or len(value.strip()) == 0:
+        raise ValueError("Notes cannot be empty.")
+    return value
+
